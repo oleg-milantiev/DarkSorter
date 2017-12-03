@@ -32,7 +32,7 @@ namespace DarkSorter.Dark.Raw
 
 			System.Diagnostics.Process proc = new System.Diagnostics.Process();
 			proc.StartInfo.FileName = "exiftool.exe";
-			proc.StartInfo.Arguments = filename;
+			proc.StartInfo.Arguments = "\""+ filename +"\"";
 			
 			proc.StartInfo.RedirectStandardOutput = true;
 			proc.StartInfo.UseShellExecute = false;
