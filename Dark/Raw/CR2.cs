@@ -7,86 +7,79 @@
  * To change this template use Tools | Options | Coding | Edit Standard Headers.
  */
 using System;
+using System.IO;
 //using System.IO;
 using System.Text.RegularExpressions;
 
+using DarkSorter.Helpers;
 
 namespace DarkSorter.Dark.Raw
 {
-	/// <summary>
-	/// Description of CR2.
-	/// </summary>
-	public class CR2 : Dark.Raw.Base
-	{	
-		
-		public CR2(string filename)
-		{
-			this.filename = filename;
-			
-			Regex rTemp = new Regex(@"Camera Temperature              : (-{0,1}\d+) C");
-			Regex rExpo = new Regex(@"Exposure Time                   : (\d+)");
-			Regex rDate = new Regex(@"Date/Time Original              : (\d{4}):(\d\d):(\d\d) (\d\d):(\d\d):\d\d");
-			Regex rISO  = new Regex(@"ISO                             : (\d+)");
-			
-			Match m;
+    /// <summary>
+    /// Description of CR2.
+    /// </summary>
+    public class CR2 : Dark.Raw.Base
+    {
+        private static readonly Regex rTemp = new Regex(@"Camera\sTemperature\s+:\s*(-?\d+)\sC", RegexOptions.Compiled | RegexOptions.IgnorePatternWhitespace);
+        private static readonly Regex rExpo = new Regex(@"Exposure\sTime\s+:\s*(\d+)", RegexOptions.Compiled | RegexOptions.IgnorePatternWhitespace);
+        private static readonly Regex rDate = new Regex(@"Date/Time\sOriginal\s+:\s*(\d{4}):(\d{2}):(\d{2})\s(\d{2}):(\d{2}):\d{2}", RegexOptions.Compiled | RegexOptions.IgnorePatternWhitespace);
+        private static readonly Regex rISO = new Regex(@"ISO\s+:\s*(\d+)", RegexOptions.Compiled | RegexOptions.IgnorePatternWhitespace);
 
-			System.Diagnostics.Process proc = new System.Diagnostics.Process();
-			proc.StartInfo.FileName = "exiftool.exe";
-			proc.StartInfo.Arguments = "\""+ filename +"\"";
-			
-			proc.StartInfo.RedirectStandardOutput = true;
-			proc.StartInfo.UseShellExecute = false;
-			
-			proc.StartInfo.WindowStyle = System.Diagnostics.ProcessWindowStyle.Hidden;
-			proc.StartInfo.CreateNoWindow = true;
-							
-			proc.Start();
-			
-			while (!proc.StandardOutput.EndOfStream) {
-				string line = proc.StandardOutput.ReadLine();
-				
-				m = rTemp.Match(line);
-				
-				if (m.Success) {
-					this.temperature = Convert.ToInt32(m.Groups[1].ToString());
-				}
-				
-				m = rExpo.Match(line);
+        private static readonly string path = Path.GetDirectoryName(typeof(CR2).Assembly.Location);
 
-				if (m.Success) {
-					this.exposure = Convert.ToInt32(m.Groups[1].ToString());
-				}
-				
-				m = rDate.Match(line);
+        public CR2(string filename)
+        {
+            this.filename = filename;
 
-				if (m.Success) {
-					this.date = new DateTime(
-						Convert.ToInt32(m.Groups[1].ToString()),
-						Convert.ToInt32(m.Groups[2].ToString()),
-						Convert.ToInt32(m.Groups[3].ToString()),
-						Convert.ToInt32(m.Groups[4].ToString()),
-						Convert.ToInt32(m.Groups[5].ToString()),
-					0);
-				}
-				
-				m = rISO.Match(line);
+            System.Diagnostics.Process proc = new System.Diagnostics.Process()
+            {
+                StartInfo =
+                {
+                    FileName = Path.Combine(path, "exiftool.exe"),
+                    Arguments = "\""+ filename +"\"",
+                    RedirectStandardOutput = true,
+                    UseShellExecute = false,
+                    WindowStyle = System.Diagnostics.ProcessWindowStyle.Hidden,
+                    CreateNoWindow = true
+                }
+            };
 
-				if (m.Success) {
-					this.ISO = Convert.ToInt32(m.Groups[1].ToString());
-				}
-				
-				if (
-					(temperature != -1) &&
-					(exposure != -1) &&
-					(ISO != -1) &&
-					(date != null)
-				) {
-					proc.StandardOutput.ReadToEnd();
-					
-					return;
-				}
-			}
-		}
-		
-	}
+            proc.Start();
+
+            while (!proc.StandardOutput.EndOfStream)
+            {
+                string line = proc.StandardOutput.ReadLine();
+
+                rTemp.IfMatch(line, m => this.temperature = Convert.ToInt32(m.Groups[1].ToString()));
+
+                rExpo.IfMatch(line, m => this.exposure = Convert.ToInt32(m.Groups[1].ToString()));
+
+                rDate.IfMatch(line, m =>
+                                {
+                                    this.date = new DateTime(
+                                        Convert.ToInt32(m.Groups[1].ToString()),
+                                        Convert.ToInt32(m.Groups[2].ToString()),
+                                        Convert.ToInt32(m.Groups[3].ToString()),
+                                        Convert.ToInt32(m.Groups[4].ToString()),
+                                        Convert.ToInt32(m.Groups[5].ToString()),
+                                    0);
+                                });
+
+                rISO.IfMatch(line, m => this.ISO = Convert.ToInt32(m.Groups[1].ToString()));
+
+                if (
+                    (temperature != -1) &&
+                    (exposure != -1) &&
+                    (ISO != -1) &&
+                    (date != null)
+                )
+                {
+                    proc.StandardOutput.ReadToEnd();
+
+                    return;
+                }
+            }
+        }
+
+    }
 }

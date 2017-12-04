@@ -55,7 +55,10 @@
     <Compile Include="Dark\Base.cs" />
     <Compile Include="Dark\Raw\Base.cs" />
     <Compile Include="Dark\Raw\CR2.cs" />
-    <Compile Include="MainForm.cs" />
+    <Compile Include="Helpers\RegexHelpers.cs" />
+    <Compile Include="MainForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Include="MainForm.Designer.cs">
       <DependentUpon>MainForm.cs</DependentUpon>
     </Compile>
@@ -71,9 +74,6 @@
       <DependentUpon>MainForm.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Dark" />
-    <Folder Include="Dark\Raw" />
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
