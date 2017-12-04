@@ -18,7 +18,7 @@ namespace DarkSorter.Dark.Raw
     /// <summary>
     /// Description of CR2.
     /// </summary>
-    public class CR2 : Dark.Raw.Base
+    public class CR2 : Base
     {
         private static readonly Regex rTemp = new Regex(@"Camera\sTemperature\s+:\s*(-?\d+)\sC", RegexOptions.Compiled | RegexOptions.IgnorePatternWhitespace);
         private static readonly Regex rExpo = new Regex(@"Exposure\sTime\s+:\s*(\d+)", RegexOptions.Compiled | RegexOptions.IgnorePatternWhitespace);
@@ -29,7 +29,7 @@ namespace DarkSorter.Dark.Raw
 
         public CR2(string filename)
         {
-            this.filename = filename;
+            this.Filename = filename;
 
             System.Diagnostics.Process proc = new System.Diagnostics.Process()
             {
@@ -50,33 +50,28 @@ namespace DarkSorter.Dark.Raw
             {
                 string line = proc.StandardOutput.ReadLine();
 
-                rTemp.IfMatch(line, m => this.temperature = Convert.ToInt32(m.Groups[1].ToString()));
-
-                rExpo.IfMatch(line, m => this.exposure = Convert.ToInt32(m.Groups[1].ToString()));
-
-                rDate.IfMatch(line, m =>
+                if (
+                    rTemp.IfMatch(line, m => this.Temperature = Convert.ToInt32(m.Groups[1].ToString())) ||
+                    rExpo.IfMatch(line, m => this.Exposure = Convert.ToInt32(m.Groups[1].ToString())) ||
+                    rDate.IfMatch(line, m =>
                                 {
-                                    this.date = new DateTime(
+                                    this.Date = new DateTime(
                                         Convert.ToInt32(m.Groups[1].ToString()),
                                         Convert.ToInt32(m.Groups[2].ToString()),
                                         Convert.ToInt32(m.Groups[3].ToString()),
                                         Convert.ToInt32(m.Groups[4].ToString()),
                                         Convert.ToInt32(m.Groups[5].ToString()),
                                     0);
-                                });
-
-                rISO.IfMatch(line, m => this.ISO = Convert.ToInt32(m.Groups[1].ToString()));
-
-                if (
-                    (temperature != -1) &&
-                    (exposure != -1) &&
-                    (ISO != -1) &&
-                    (date != null)
-                )
+                                }) ||
+                    rISO.IfMatch(line, m => this.ISO = Convert.ToInt32(m.Groups[1].ToString()))
+                    )
                 {
-                    proc.StandardOutput.ReadToEnd();
+                    if (IsDark())
+                    {
+                        proc.StandardOutput.ReadToEnd();
 
-                    return;
+                        return;
+                    }
                 }
             }
         }

@@ -8,7 +8,9 @@
  */
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Drawing;
+using System.IO;
 using System.Windows.Forms;
 
 namespace DarkSorter
@@ -26,12 +28,14 @@ namespace DarkSorter
 		{
 			InitializeComponent();
 		}
+
 		void MainFormShown(object sender, EventArgs e)
 		{
 			sorter = new DarkSorter(this);
 			setDefaults();
 		}
-		void MainFormFormClosing(object sender, FormClosingEventArgs e)
+
+        void MainFormFormClosing(object sender, FormClosingEventArgs e)
 		{
 			sorter.Stop();
 		}
@@ -42,7 +46,8 @@ namespace DarkSorter
 		/// </summary>
 		private void setDefaults()
 		{
-			switch (sorter.getIso()) {
+			switch (sorter.ISO)
+            {
 				case 100:
 					iso100.Checked = true;
 					break;
@@ -64,20 +69,20 @@ namespace DarkSorter
 					break;
 			}
 			
-			folderBrowserIn.SelectedPath = sorter.getFolderIn();
+			folderBrowserIn.SelectedPath = sorter.FolderIn;
 			folderInText.Text = folderBrowserIn.SelectedPath;
 			
-			folderBrowserOut.SelectedPath = sorter.getFolderOut();
+			folderBrowserOut.SelectedPath = sorter.FolderOut;
 			folderOutText.Text = folderBrowserOut.SelectedPath;
 			
-			expose.Value = sorter.getExpose();
-			exposeRange.Value = sorter.getExposeRange();
+			expose.Value = sorter.Expose;
+			exposeRange.Value = sorter.ExposeRange;
 			
 			themp.Minimum = -99;
-			themp.Value = sorter.getThemp();
-			thempRange.Value = sorter.getThempRange();
+			themp.Value = sorter.Temperature;
+			thempRange.Value = sorter.TemperatureRange;
 			
-			count.Value = sorter.getCount();
+			count.Value = sorter.Count;
 		}
 		
 		
@@ -85,82 +90,122 @@ namespace DarkSorter
 		{
 			sorter.Copy();
 		}
-		
-		
-		void Iso100CheckedChanged(object sender, EventArgs e)
+
+
+        #region ISO
+        //TODO: Объединить обработчики.
+        // событие вызывается дважды: при сбросе и при установке переключателя
+        void Iso100CheckedChanged(object sender, EventArgs e)
 		{
-			sorter.setIso(100);
+            if (iso100.Checked)
+            {
+                sorter.ISO = 100;
+            }
 		}
+
 		void Iso200CheckedChanged(object sender, EventArgs e)
 		{
-			sorter.setIso(200);
-		}
+            if (iso200.Checked)
+            {
+                sorter.ISO = 200;
+            }
+        }
+
 		void Iso400CheckedChanged(object sender, EventArgs e)
 		{
-			sorter.setIso(400);
+            if (iso400.Checked)
+            {
+                sorter.ISO = 400;
+            }
 		}
-		void Iso800CheckedChanged(object sender, EventArgs e)
-		{
-			sorter.setIso(800);
-		}
-		void Iso1600CheckedChanged(object sender, EventArgs e)
-		{
-			sorter.setIso(1600);
-		}
-		
-		
 
-		void FolderInButtonClick(object sender, EventArgs e)
+        void Iso800CheckedChanged(object sender, EventArgs e)
 		{
-			if (folderBrowserIn.ShowDialog() == DialogResult.OK) {
+            if (iso800.Checked)
+            {
+                sorter.ISO = 800;
+            }
+		}
+
+        void Iso1600CheckedChanged(object sender, EventArgs e)
+        {
+            if (iso1600.Checked)
+            {
+                sorter.ISO = 1600;
+            }
+        }
+
+        #endregion
+
+        void FolderInButtonClick(object sender, EventArgs e)
+		{
+			if (folderBrowserIn.ShowDialog() == DialogResult.OK)
+            {
 				folderInText.Text = folderBrowserIn.SelectedPath;
-				sorter.setFolderIn(folderBrowserIn.SelectedPath);
+				sorter.FolderIn = folderBrowserIn.SelectedPath;
 			}
 		}
-		void FolderInTextTextChanged(object sender, EventArgs e)
+
+        void FolderInTextTextValidating(object sender, CancelEventArgs e)
+        {
+            if (!Directory.Exists(folderInText.Text))
+            {
+                e.Cancel = true;
+            }
+        }
+
+        void FolderInTextTextChanged(object sender, EventArgs e)
 		{
-			sorter.setFolderIn(folderInText.Text);
+			sorter.FolderIn = folderInText.Text;
 		}
 
 		void FolderOutButtonClick(object sender, EventArgs e)
 		{
-			if (folderBrowserOut.ShowDialog() == DialogResult.OK) {
+			if (folderBrowserOut.ShowDialog() == DialogResult.OK)
+            {
 				folderOutText.Text = folderBrowserOut.SelectedPath;
-				sorter.setFolderOut(folderBrowserOut.SelectedPath);
+				sorter.FolderOut = folderBrowserOut.SelectedPath;
 			}
 		}
 		
 		void FolderOutTextTextChanged(object sender, EventArgs e)
 		{
-			sorter.setFolderOut(folderOutText.Text);
+			sorter.FolderOut = folderOutText.Text;
 		}
-		
-		
-		void ExposeValueChanged(object sender, EventArgs e)
+
+        void FolderOutTextTextValidating(object sender, CancelEventArgs e)
+        {
+            if (!Directory.Exists(folderOutText.Text))
+            {
+                e.Cancel = true;
+            }
+        }
+
+
+        void ExposeValueChanged(object sender, EventArgs e)
 		{
-			sorter.setExpose(Convert.ToInt32(expose.Value));
+			sorter.Expose = Convert.ToInt32(expose.Value);
 		}
-		void ExposeRangeValueChanged(object sender, EventArgs e)
+
+        void ExposeRangeValueChanged(object sender, EventArgs e)
 		{
-			sorter.setExposeRange(Convert.ToInt32(exposeRange.Value));
+			sorter.ExposeRange = Convert.ToInt32(exposeRange.Value);
 		}
-		
 		
 		void ThempValueChanged(object sender, EventArgs e)
 		{
-			sorter.setThemp(Convert.ToInt32(themp.Value));
+			sorter.Temperature = Convert.ToInt32(themp.Value);
 		}
-		void ThempRangeValueChanged(object sender, EventArgs e)
+
+        void ThempRangeValueChanged(object sender, EventArgs e)
 		{
-			sorter.setThempRange(Convert.ToInt32(thempRange.Value));
+			sorter.TemperatureRange = Convert.ToInt32(thempRange.Value);
 		}
-		
 		
 		void CountValueChanged(object sender, EventArgs e)
 		{
-			sorter.setCount(Convert.ToInt32(count.Value));
-		}		
-
+			sorter.Count = Convert.ToInt32(count.Value);
+		}
 
 		/// <summary>
 		/// Отображение счётчиков из других потоков.
@@ -170,7 +215,8 @@ namespace DarkSorter
 		/// <param name="total"></param>
 		public void setCounts(int filtered, int total)
 		{
-			labelCount.BeginInvoke((MethodInvoker)(() => 
+            // Здесь утечка ресурсов. Обновление нужно сделать полностью асинхронным.
+			var result = labelCount.BeginInvoke((MethodInvoker)(() => 
 				labelCount.Text =
 					filtered.ToString() +
 					" из "+

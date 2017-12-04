@@ -15,47 +15,23 @@ namespace DarkSorter.Dark
 	/// </summary>
 	public class Base
 	{
-		protected string filename;
-		protected int temperature = -1;
-		protected int exposure = -1;
-		protected int ISO = -1;
-		protected DateTime? date;
+		public string Filename { get; protected set; }
+
+        public int? Temperature { get; protected set; }
+
+        public int? Exposure { get; protected set; }
+
+        public int? ISO { get; protected set; }
+
+		public DateTime? Date { get; protected set; }
 		
-		public Base()
+		public bool IsDark()
 		{
-		}
-		
-		
-		public string getFilename()
-		{
-			return filename;
-		}
-		public int getTemperature()
-		{
-			return temperature;
-		}
-		public int getExposure()
-		{
-			return exposure;
-		}
-		public int getISO()
-		{
-			return ISO;
-		}
-		public DateTime? getDate()
-		{
-			return date;
-		}
-		
-		
-		public bool isDark()
-		{
-			return (
-				(temperature != -1) &&
-				(ISO != -1) &&
-				(exposure != -1) &&
-				(date != null)
-			);
+            return
+                Temperature.HasValue &&
+                ISO.HasValue &&
+                Exposure.HasValue &&
+                Date.HasValue;
 		}
 			
 	}

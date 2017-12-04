@@ -129,10 +129,11 @@ namespace DarkSorter
 			this.folderInText.Size = new System.Drawing.Size(180, 22);
 			this.folderInText.TabIndex = 1;
 			this.folderInText.TextChanged += new System.EventHandler(this.FolderInTextTextChanged);
-			// 
-			// label2
-			// 
-			this.label2.Location = new System.Drawing.Point(12, 9);
+			this.folderInText.Validating += new System.ComponentModel.CancelEventHandler(this.FolderInTextTextValidating);
+            // 
+            // label2
+            // 
+            this.label2.Location = new System.Drawing.Point(12, 9);
 			this.label2.Name = "label2";
 			this.label2.Size = new System.Drawing.Size(456, 45);
 			this.label2.TabIndex = 2;
@@ -391,6 +392,7 @@ namespace DarkSorter
 			this.folderOutText.Size = new System.Drawing.Size(231, 22);
 			this.folderOutText.TabIndex = 14;
 			this.folderOutText.TextChanged += new System.EventHandler(this.FolderOutTextTextChanged);
+			this.folderOutText.Validating += new System.ComponentModel.CancelEventHandler(this.FolderOutTextTextValidating);
 			// 
 			// label9
 			// 
