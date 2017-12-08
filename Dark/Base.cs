@@ -17,22 +17,22 @@ namespace DarkSorter.Dark
 	{
 		public string Filename { get; protected set; }
 
-        public int? Temperature { get; protected set; }
+		public int? Temperature { get; protected set; }
 
-        public int? Exposure { get; protected set; }
+		public int? Exposure { get; protected set; }
 
-        public int? ISO { get; protected set; }
+		public int? ISO { get; protected set; }
 
 		public DateTime? Date { get; protected set; }
-		
+
 		public bool IsDark()
 		{
-            return
-                Temperature.HasValue &&
-                ISO.HasValue &&
-                Exposure.HasValue &&
-                Date.HasValue;
+			return
+				Temperature.HasValue &&
+				ISO.HasValue &&
+				Exposure.HasValue &&
+				Date.HasValue;
 		}
-			
+
 	}
 }
